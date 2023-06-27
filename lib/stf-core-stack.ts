@@ -12,7 +12,7 @@ export class StfCoreStack extends Stack {
     super(scope, id, props)
 
     let stf_broker_stack;
-    let stf_iot_stack;
+    let stf_iot_stack = null;
 
     const stf_core_constructs = new StfCoreConstructs(this, 'CommonContructs')
 
@@ -21,34 +21,37 @@ export class StfCoreStack extends Stack {
         vpc: stf_core_constructs.vpc, 
         secret: stf_core_constructs.secret
       })
-      stf_iot_stack  = new StfIotStack(this, 'IoT', {
-        dns_context_broker: stf_broker_stack.dns_context_broker, 
-        vpc: stf_core_constructs.vpc, 
-        api_ref: stf_broker_stack.api_ref,
-      })
+      if (Parameters.deploy_iot) {
+        stf_iot_stack = new StfIotStack(this, 'IoT', {
+          dns_context_broker: stf_broker_stack.dns_context_broker,
+          vpc: stf_core_constructs.vpc,
+          api_ref: stf_broker_stack.api_ref,
+        })
+      }
     } else if (Parameters.stf_broker == "Orion") {
       stf_broker_stack = new StfCoreOrion(this, 'Orion', {
         vpc: stf_core_constructs.vpc, 
         secret: stf_core_constructs.secret
       })
-      stf_iot_stack  = new StfIotStack(this, 'IoT', {
-        dns_context_broker: stf_broker_stack.dns_context_broker, 
-        vpc: stf_core_constructs.vpc, 
-        api_ref: stf_broker_stack.api_ref
-      })
+      if (Parameters.deploy_iot) {
+        stf_iot_stack = new StfIotStack(this, 'IoT', {
+          dns_context_broker: stf_broker_stack.dns_context_broker,
+          vpc: stf_core_constructs.vpc,
+          api_ref: stf_broker_stack.api_ref
+        })
+      }
     } else {
       throw new Error('Please provide a valid option for the context broker - Orion or Scorpio')
     }
 
-
-    new CfnOutput(this, 'StfCoreEndpoint', {
-      value: stf_broker_stack.broker_api_endpoint
-    })
-
-    new CfnOutput(this, 'StfCoreIotQueueArn', {
-      value: stf_iot_stack.iot_sqs_endpoint_arn
-    })
-
+    if (stf_iot_stack !== null) {
+      new CfnOutput(this, 'StfCoreEndpoint', {
+        value: stf_broker_stack.broker_api_endpoint
+      })
+      new CfnOutput(this, 'StfCoreIotQueueArn', {
+        value: stf_iot_stack.iot_sqs_endpoint_arn
+      })
+    }
     
 
   }

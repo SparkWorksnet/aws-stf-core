@@ -3,7 +3,7 @@ import { InstanceClass, InstanceSize, InstanceType } from "aws-cdk-lib/aws-ec2"
 import { AuroraCapacityUnit, StorageType } from "aws-cdk-lib/aws-rds"
 
 
-enum Broker {
+export enum Broker {
     Orion = "Orion", // Here orion refers to orion-ld broker:  https://github.com/FIWARE/context.Orion-LD
     Scorpio = "Scorpio"
 }
@@ -12,7 +12,8 @@ export const Parameters = {
     aws_region: "eu-west-1", // see regions in which you can deploy the STF: https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vpc-links.html#http-api-vpc-link-availability
     stf_version: "1.2.0", // Do not change
     stf_broker: Broker.Scorpio, // choose between enum Broker value (Orion or Scorpio) 
-    vpc_link_name: 'stf-vpc-link', 
+    vpc_link_name: 'stf-vpc-link',
+    deploy_iot: true, // deploy the iot stack or not
 
     // Parameters for the the STF IoT module
     stf_iot: {
